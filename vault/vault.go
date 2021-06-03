@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"strconv"
-
+	"net/http"
 	"github.com/hashicorp/vault/api"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 )
@@ -75,6 +75,13 @@ func CreateClient(vaultKubernetesRole string) (*Client, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	header := make(http.Header)
+	header.Add("x-iml-waf-access", "xxx")
+	apiClient.SetHeaders(header)
+
+
+
 
 	// Check which authentication method should be used.
 	if vaultAuthMethod == "token" {
