@@ -2,12 +2,12 @@ package vault
 
 import (
 	"fmt"
-	"io/ioutil"
-	"os"
-	"strconv"
-	"net/http"
 	"github.com/hashicorp/vault/api"
+	"io/ioutil"
+	"net/http"
+	"os"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
+	"strconv"
 )
 
 var (
@@ -64,6 +64,7 @@ func CreateClient(vaultKubernetesRole string) (*Client, error) {
 	vaultSecretID := os.Getenv("VAULT_SECRET_ID")
 	vaultTokenMaxTTL := os.Getenv("VAULT_TOKEN_MAX_TTL")
 	vaultNamespace := os.Getenv("VAULT_NAMESPACE")
+	vaultWafToken := os.Getenv("VAULT_WAF_TOKEN")
 
 	// Create new Vault configuration. This configuration is used to create the
 	// API client. We set the timeout of the HTTP client to 10 seconds.
@@ -76,12 +77,11 @@ func CreateClient(vaultKubernetesRole string) (*Client, error) {
 		return nil, err
 	}
 
-	header := make(http.Header)
-	header.Add("x-iml-waf-access", "xxx")
-	apiClient.SetHeaders(header)
-
-
-
+	if vaultWafToken != "" {
+		header := make(http.Header)
+		header.Add("x-iml-waf-access", vaultWafToken)
+		apiClient.SetHeaders(header)
+	}
 
 	// Check which authentication method should be used.
 	if vaultAuthMethod == "token" {
